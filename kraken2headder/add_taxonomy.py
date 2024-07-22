@@ -57,16 +57,16 @@ def add_taxonomy_header():
     with open(output + source_file_name, "r") as f:
         for rec in SeqIO.parse(f, "fasta"):
             seq = rec.seq
-            acc = re.split('_|\|', rec.id)
+            acc = re.split(r'\|', rec.description)
             try:
-                accession = acc[0].split('.')[0]
+                accession = acc[0].split('_')[0]
                 kraken_header = "kraken:taxid|" + taxid_map[accession] + "|"
-                new_id = kraken_header + rec.id
-                new_description = re.split('\|', rec.description)
+                new_id = kraken_header + rec.id.split('|')[0]
+                new_description = acc[1] + "|" + acc[2]
                 # 書き込む
                 # Seq()の引数は文字列である必要がある。Seq objectをSeq()の引数にはできない
                 # new_rec = SeqRecord(Seq(seq), id=new_id, description=new_description[-1])
-                new_rec = SeqRecord(seq, id=new_id, description=new_description[-1])
+                new_rec = SeqRecord(seq, id=new_id, description=new_description)
                 records.append(new_rec)
             except KeyError:
                 unfetched.append(acc[0])
